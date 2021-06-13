@@ -3,7 +3,8 @@ class AutomataController {
     transform() {
         return (req, res, next) => {
             const AFND = req.body;
-
+            console.log(req.body);
+            console.log(AFND);
             const AFD = this.getAFD(AFND, [AFND.initialState]);
 
             res.send(AFD);
