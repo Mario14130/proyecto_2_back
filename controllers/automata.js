@@ -93,8 +93,8 @@ class AutomataController {
             for (let j = i - 1; j >= 0; j--) {
                 let AFDstate2 = AFDStates[j];
                 if (AFDstate.length === AFDstate2.length) {
-                    AFDstate = AFDstate.split('').sort().toString();
-                    AFDstate2 = AFDstate2.split('').sort().toString();
+                    AFDstate = AFDstate.split('').sort().join('');
+                    AFDstate2 = AFDstate2.split('').sort().join('');
                     if (AFDstate == AFDstate2) {
                         isDuplicated = true;
                     }
