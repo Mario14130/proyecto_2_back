@@ -9,9 +9,25 @@ class AutomataController {
         }
     };
 
+    cleanTransitions(transitions) {
+        const regexp = new RegExp('[a-z0-9]+');
+        return transitions.map((transition) => {
+            const newTransition = {};
+            for (const key in transition) {
+                const state = transition[key];
+                if (regexp.test(state)) {
+                    newTransition[key] = state;
+                }
+            }
+            return newTransition;
+        });
+    }
+
     getAFD = (AFND) => {
 
         const { alphabet, initialState } = AFND;
+
+        AFND.transitions = this.cleanTransitions(AFND.transitions);
 
         const AFDStates = this.buildStates(AFND);
 
@@ -36,7 +52,7 @@ class AutomataController {
         AFDStates = [...AFDStates];
 
         if (counter === 0) {
-            AFDStates = [initialState];
+            AFDStates.push(initialState);
         }
 
         if (counter !== AFDStates.length) {
@@ -53,6 +69,7 @@ class AutomataController {
             })
 
             for (const key in newStates) {
+                // Eliminando duplicados
                 newStates[key] = newStates[key].filter((newState, index, self) => index === self.indexOf(newState));
                 const newState = newStates[key];
                 if (!AFDStates.find((state) => state === newState.join(''))) {
@@ -63,8 +80,33 @@ class AutomataController {
             return this.buildStates(AFND, AFDStates, counter + 1);
         }
 
+        AFDStates = this.deleteStatesDuplicated(AFDStates);
+
         return AFDStates;
     };
+
+    deleteStatesDuplicated(AFDStates) {
+        const cleanAFDStates = [];
+        for (let i = AFDStates.length -1; i >= 0; i--) {
+            let AFDstate = AFDStates[i];
+            let isDuplicated = false;
+            for (let j = i - 1; j >= 0; j--) {
+                let AFDstate2 = AFDStates[j];
+                if (AFDstate.length === AFDstate2.length) {
+                    AFDstate = AFDstate.split('').sort().toString();
+                    AFDstate2 = AFDstate2.split('').sort().toString();
+                    if (AFDstate == AFDstate2) {
+                        isDuplicated = true;
+                    }
+                }
+            }
+            if (!isDuplicated) {
+                cleanAFDStates[i] = AFDstate;
+            }
+        }
+
+        return cleanAFDStates;
+    }
 
     buildTransitions = (AFND, AFDStates) => {
         // TODO: Crear funcion
@@ -79,7 +121,7 @@ class AutomataController {
                 const position = states.indexOf(state);
                 const transition = transitions[position];
                 for (const key in transition) {
-                    const transitingTo = transition[key];  
+                    const transitingTo = transition[key];
                     newTransitions[key].push(transitingTo);
                     AFDTransitions[i] = { ...AFDTransitions[i], [key]: newTransitions[key].join('') };
                 }
@@ -95,7 +137,7 @@ class AutomataController {
         // TODO: Crear funcion
         const { acceptanceStates } = AFND;
         const acceptanceStatesCleaned = acceptanceStates.filter((state) => state);
-        
+
         const AFDAcceptanceStates = AFDStates.filter((states) => {
             for (let i = 0; i < acceptanceStatesCleaned.length; i++) {
                 const acceptanceState = acceptanceStatesCleaned[i];
@@ -116,9 +158,9 @@ class AutomataController {
     }
 
     separateStates(individualStates, state) {
-        return individualStates.filter((individualState) => state.includes(individualState)); 
+        return individualStates.filter((individualState) => state.includes(individualState));
     }
-    
+
 }
 
 const automataController = new AutomataController();
