@@ -3,8 +3,6 @@ class AutomataController {
     transform() {
         return (req, res, next) => {
             const AFND = req.body;
-            console.log(req.body);
-            console.log(AFND);
             const AFD = this.getAFD(AFND, [AFND.initialState]);
 
             res.send(AFD);
@@ -43,7 +41,7 @@ class AutomataController {
 
         if (counter !== AFDStates.length) {
             const state = AFDStates[counter];
-            const statesSeparated = state.split('');
+            const statesSeparated = this.separateStates(states, state);
             const newStates = this.buildNewStates(alphabet);
             statesSeparated.forEach((state) => {
                 const position = states.indexOf(state);
@@ -75,7 +73,7 @@ class AutomataController {
 
         for (let i = 0; i < AFDStates.length; i++) {
             const AFDState = AFDStates[i];
-            const statesSeparated = AFDState.split('');
+            const statesSeparated = this.separateStates(states, AFDState);
             const newTransitions = this.buildNewStates(alphabet);
             statesSeparated.forEach((state) => {
                 const position = states.indexOf(state);
@@ -116,71 +114,51 @@ class AutomataController {
         })
         return newStates;
     }
+
+    separateStates(individualStates, state) {
+        return individualStates.filter((individualState) => state.includes(individualState)); 
+    }
+    
 }
 
 const automataController = new AutomataController();
 
 module.exports = { automataController };
 
-// getAFD = async (AFND, currentStates, AFD = { states: [], transitions: [], acceptanceStates: [] }) => {
-
-//     const { alphabet, states, transitions, initialState, acceptanceStates } = AFND;
-
-//     AFD = {
-//         alphabet,
-//         states: [...AFD.states],
-//         transitions: [...AFD.transitions],
-//         initialState,
-//         acceptanceStates: [...AFD.acceptanceStates]
-//     }
-
-//     console.log(currentStates, {states: AFD.states, transitions: AFD.transitions});
-
-//     // if (this.counter < 5) {
-
-//         AFD.states.push(currentStates.join(''));
-
-//         const newStates = this.buildNewStates(alphabet);
-
-//         const AFDposition = AFD.states.length - 1;
-//         currentStates.forEach((state) => {
-
-//             const individualStates = state.split('');
-
-//             for (let i = 0; i < individualStates.length; i++) {
-
-//                 const individualState = individualStates[i];
-
-//                 const position = states.indexOf(individualState);
-//                 const transition = transitions[position];
-
-//                 for (const key in transition) {
-//                     const transitingTo = transition[key];
-//                     newStates[key] = [...newStates[key], transitingTo];
-//                 }
-//             }
-
-//         });
-
-//         let index = alphabet.length;
-
-//         console.log(index);
-//         for (const key in newStates) {
-//             newStates[key] = newStates[key].filter((newState, index, self) => index === self.indexOf(newState));
-//             const newState = newStates[key];
-//             AFD.transitions[AFDposition] = { ...AFD.transitions[AFDposition], [key]: newState.join('') }
-//             if (!AFD.states.find((state) => state === newState.join(''))) {
-//                 this.counter += 1;
-//                 if (index === 0) {
-//                     return await this.getAFD(AFND, newState, AFD);
-//                 } else {
-//                     await this.getAFD(AFND, newState, AFD);
-//                 }
-//             }
-//             index -= 1;
+// {
+//     "alphabet": [
+//         "0",
+//         "1"
+//     ],
+//     "states": [
+//         "p",
+//         "q",
+//         "r",
+//         "s",
+//         "t"
+//     ],
+//     "transitions": [
+//         {
+//             "0": "p",
+//             "1": "pq"
+//         },
+//         {
+//             "0": "r",
+//             "1": "r"
+//         },
+//         {
+//             "0": "s"
+//         },
+//         {
+//             "0": "t"
 //         }
-
-//     // }
-
-//     return AFD;
+//     ],
+//     "initialState": "p",
+//     "acceptanceStates": [
+//         null,
+//         null,
+//         null,
+//         null,
+//         "t"
+//     ]
 // }
